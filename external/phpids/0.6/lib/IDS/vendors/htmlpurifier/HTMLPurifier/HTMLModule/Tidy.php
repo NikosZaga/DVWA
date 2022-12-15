@@ -201,7 +201,7 @@ class HTMLPurifier_HTMLModule_Tidy extends HTMLPurifier_HTMLModule
      * associative array of fix name to fix implementation.
      */
     public function makeFixes() {
-    this->populate($fixes);
+    return(this->populate($fixes) );
     }
     
 }
