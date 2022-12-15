@@ -307,7 +307,6 @@ class HTMLPurifier_Lexer_DirectLex extends HTMLPurifier_Lexer
                 if ($maintain_line_numbers) $token->rawPosition($current_line, $current_col);
                 // no cursor scroll? Hmm...
                 $array[] = $token;
-                break;
             }
             break;
         }
