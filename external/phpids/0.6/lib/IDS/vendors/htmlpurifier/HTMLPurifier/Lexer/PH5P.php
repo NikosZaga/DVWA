@@ -1388,7 +1388,6 @@ class HTML5TreeConstructer {
                 case self::IN_TBODY:   return $this->inTableBody($token); break;
                 case self::IN_ROW:     return $this->inRow($token); break;
                 case self::IN_CELL:    return $this->inCell($token); break;
-                case self::IN_SELECT:  return $this->inSelect($token); break;
                 case self::AFTER_BODY: return $this->afterBody($token); break;
                 case self::IN_FRAME:   return $this->inFrameset($token); break;
                 case self::AFTR_FRAME: return $this->afterFrameset($token); break;
