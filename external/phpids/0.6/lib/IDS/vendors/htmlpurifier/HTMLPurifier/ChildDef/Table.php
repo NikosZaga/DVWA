@@ -62,9 +62,8 @@ class HTMLPurifier_ChildDef_Table extends HTMLPurifier_ChildDef
                         case 'thead':
                         case 'tfoot':
                             // access the appropriate variable, $thead or $tfoot
-                            $var = $collection[$tag_index]->name;
-                            if ($$var === false) {
-                                $$var = $collection;
+                            if ($collection[$tag_index]->name == false) {
+                               $collection[$tag_index]->name = $collection;
                             } else {
                                 // transmutate the first and less entries into
                                 // tbody tags, and then put into content
