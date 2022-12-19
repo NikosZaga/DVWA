@@ -163,22 +163,18 @@ class Parsedown
     {
         return $this->elements($this->linesElements($lines));
     }
-
     protected function linesElements(array $lines)
     {
         $Elements = array();
         $CurrentBlock = null;
 
-        foreach ($lines as $line)
+        //assuming all repeating structures are necessary because I am not opening that can of worms...
+
+        foreach ($lines as $line) //+1
         {
-            if (chop($line) === '')
+            if (chop($line) === ''  && isset($CurrentBlock))
             {
-                if (isset($CurrentBlock))
-                {
-                    $CurrentBlock['interrupted'] = (isset($CurrentBlock['interrupted'])
-                        ? $CurrentBlock['interrupted'] + 1 : 1
-                    );
-                }
+                    $CurrentBlock['interrupted'] = (isset($CurrentBlock['interrupted'])? $CurrentBlock['interrupted'] + 1 : 1);
 
                 continue;
             }
@@ -203,26 +199,21 @@ class Parsedown
 
             # ~
 
-            if (isset($CurrentBlock['continuable']))
+            if (isset($CurrentBlock['continuable'])  &&isset($Block))
             {
                 $methodName = 'block' . $CurrentBlock['type'] . 'Continue';
                 $Block = $this->$methodName($Line, $CurrentBlock);
 
-                if (isset($Block))
-                {
-                    $CurrentBlock = $Block;
+                $CurrentBlock = $Block;
 
-                    continue;
-                }
-                else
-                {
-                    if ($this->isBlockCompletable($CurrentBlock['type']))
-                    {
+                continue;
+            }
+            else  if ($this->isBlockCompletable($CurrentBlock['type']))
+            {
                         $methodName = 'block' . $CurrentBlock['type'] . 'Complete';
                         $CurrentBlock = $this->$methodName($CurrentBlock);
-                    }
-                }
             }
+
 
             # ~
 
@@ -247,53 +238,37 @@ class Parsedown
             {
                 $Block = $this->{"block$blockType"}($Line, $CurrentBlock);
 
-                if (isset($Block))
+                if (isset($Block) &&! isset($Block['identified']) && isset($CurrentBlock))
                 {
                     $Block['type'] = $blockType;
 
-                    if ( ! isset($Block['identified']))
-                    {
-                        if (isset($CurrentBlock))
-                        {
-                            $Elements[] = $this->extractElement($CurrentBlock);
-                        }
+                    $Elements[] = $this->extractElement($CurrentBlock);
 
-                        $Block['identified'] = true;
-                    }
-
-                    if ($this->isBlockContinuable($blockType))
-                    {
-                        $Block['continuable'] = true;
-                    }
-
-                    $CurrentBlock = $Block;
-
-                    continue 2;
+                    $Block['identified'] = true;
                 }
+                else if ( isset($Block) && $this->isBlockContinuable($blockType))
+                    $Block['continuable'] = true;
+
+                $CurrentBlock = $Block;
+
+                continue 2;
             }
 
             # ~
 
             if (isset($CurrentBlock) and $CurrentBlock['type'] === 'Paragraph')
-            {
                 $Block = $this->paragraphContinue($Line, $CurrentBlock);
-            }
+
 
             if (isset($Block))
-            {
                 $CurrentBlock = $Block;
-            }
-            else
+            else if (isset($CurrentBlock))
             {
-                if (isset($CurrentBlock))
-                {
                     $Elements[] = $this->extractElement($CurrentBlock);
-                }
+            }
 
                 $CurrentBlock = $this->paragraph($Line);
-
                 $CurrentBlock['identified'] = true;
-            }
         }
 
         # ~
@@ -307,14 +282,13 @@ class Parsedown
         # ~
 
         if (isset($CurrentBlock))
-        {
             $Elements[] = $this->extractElement($CurrentBlock);
-        }
 
         # ~
 
         return $Elements;
     }
+
 
     protected function extractElement(array $Component)
     {
